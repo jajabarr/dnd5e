@@ -20,6 +20,7 @@ interface InformationSection {
   hasModifiers?: boolean;
   lines?: number;
   horizontal?: boolean;
+  editable?: boolean;
 }
 
 const Backgrounds: InformationSection = {
@@ -54,7 +55,8 @@ const ConsumableStats: InformationSection = {
 
 const SavingThrows: InformationSection = {
   ...Modifiers,
-  title: 'Saving Throws'
+  title: 'Saving Throws',
+  editable: true
 };
 
 const ContentItems: { [key: string]: InformationSection } = {
@@ -69,7 +71,13 @@ export const MainInfo = () => {
   const contentItems = React.useMemo(
     () =>
       Object.keys(ContentItems).map(key => {
-        const { title, lines, hasModifiers, horizontal } = ContentItems[key];
+        const {
+          title,
+          lines,
+          hasModifiers,
+          horizontal,
+          editable
+        } = ContentItems[key];
         const color: colorValue = colors[
           (Math.random() * 100) % colors.length | 0
         ] as colorValue;
@@ -86,6 +94,7 @@ export const MainInfo = () => {
                 color={color}
                 celled
                 striped
+                editable={editable}
                 items={ContentItems[key].values.map((value: string) => {
                   return {
                     title: value,

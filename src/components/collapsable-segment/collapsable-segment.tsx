@@ -27,7 +27,7 @@ export const CollapsableSegment: React.FC<
 > = React.memo((props: ICollpasableSegmentProps) => {
   const { content, title, titleColor, children, ...segmentProps } = props;
 
-  const [isCollapsed, setCollapsed] = React.useState(true);
+  const [isCollapsed, setCollapsed] = React.useState(false);
 
   const renderedChildren = React.useMemo(
     () => (

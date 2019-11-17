@@ -6,7 +6,13 @@ import {
   TextArea,
   Form,
   Label,
-  Input
+  Input,
+  Container,
+  Button,
+  Icon,
+  Divider,
+  Dropdown,
+  Segment
 } from 'semantic-ui-react';
 
 export interface IGenericCellProps {
@@ -29,6 +35,7 @@ export interface IGenericTableCellProps extends StrictTableCellProps {
 export interface IGenericTableProps extends StrictTableProps {
   items: IGenericTableHeaderCellProps[];
   vertical?: boolean;
+  editable?: boolean;
 }
 
 export const GenericTableCell: React.FC<IGenericTableCellProps> = React.memo(
@@ -163,21 +170,104 @@ export const GenericVerticalTable: React.FC<IGenericTableProps> = React.memo(
   }
 );
 
+interface GenericEditableContent {
+  type: 'dropdown';
+  options?: IGenericTableHeaderCellProps[];
+}
+
+export const GenericEditableContent: React.FC<
+  GenericEditableContent
+> = React.memo((props: GenericEditableContent) => {
+  const { type, options } = props;
+
+  const dropDownOptions = React.useMemo(
+    () =>
+      options &&
+      options.map(item => {
+        return { text: item.title, value: item.title };
+      }),
+    [options]
+  );
+
+  return (
+    <>
+      <Divider />
+      <Container
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          flexDirection: 'row'
+        }}
+      >
+        <Button basic icon>
+          <Icon name='plus' />
+        </Button>
+        <Dropdown
+          fluid
+          basic
+          selection
+          options={dropDownOptions}
+          defaultValue={dropDownOptions && dropDownOptions[0].text}
+        />
+      </Container>
+    </>
+  );
+});
+
 export const GenericTable: React.FC<IGenericTableProps> = React.memo(
   (props: IGenericTableProps) => {
-    const { items, vertical, ...tableProps } = props;
+    const { items, vertical, editable, color, ...tableProps } = props;
+
+    const [isEditing, toggleEditing] = React.useState(false);
 
     const innerTableProps = React.useMemo(() => {
       return {
-        items: items,
+        items,
+        style: {
+          marginTop: '15px'
+        },
         ...tableProps
       };
-    }, [items, tableProps]);
+    }, [items, color, tableProps]);
 
-    return vertical ? (
-      <GenericVerticalTable {...innerTableProps} />
-    ) : (
-      <GenericHorizontalTable {...innerTableProps} />
+    console.log('items', items);
+
+    return (
+      <Container
+        fluid
+        style={{
+          position: 'relative'
+        }}
+      >
+        {editable ? (
+          <Label
+            as='button'
+            color={isEditing ? color : undefined}
+            onClick={() => {
+              toggleEditing(prev => !prev);
+              console.log(`isEditing: ${isEditing}`);
+            }}
+            style={{
+              position: 'absolute',
+              right: '0',
+              top: '-40px',
+              margin: 0,
+              outline: 'none'
+            }}
+          >
+            <Icon name='edit' /> Edit
+          </Label>
+        ) : null}
+        {vertical ? (
+          <GenericVerticalTable {...innerTableProps} />
+        ) : (
+          <GenericHorizontalTable {...innerTableProps} />
+        )}
+        {isEditing ? (
+          <GenericEditableContent type='dropdown' options={items} />
+        ) : null}
+      </Container>
     );
   }
 );
